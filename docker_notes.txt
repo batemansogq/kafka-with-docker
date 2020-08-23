@@ -1,0 +1,53 @@
+
+#https://github.com/wsargent/docker-cheat-sheet
+
+#from multiple terminals to launch several sessions connected to the same container
+docker exec -it <container> bash 
+
+ #running as a container in the background: 
+ docker run -d -it <image_id>
+ 
+ -----------------------------------------------
+ 
+ #use the 
+ https://hub.docker.com/r/bitnami/kafka
+
+#create the docker file 
+curl -sSL https://raw.githubusercontent.com/bitnami/bitnami-docker-kafka/master/docker-compose.yml > docker-compose.yml
+
+#pick up zookeeper and kafka
+docker-compose up -d
+
+#check up
+docker ps
+
+---------------------------------------------------------
+#https://medium.com/@TimvanBaarsen/apache-kafka-cli-commands-cheat-sheet-a6f06eac01b
+
+#1 - open up a terminals
+docker exec -it <kafka container> bash
+
+#2 - navigate to the kafka scripts
+cd opt/bitnami/kafka/bin
+
+ls #will list out all of the kafka scripts
+
+#3 - create a topic
+kafka-topics.sh --zookeeper zookeeper:2181 --create --topic my-first-topic --partitions 3 --replication-factor 1
+
+#check to see if there
+kafka-topics.sh --zookeeper zookeeper:2181 --list
+
+#check the configuration
+kafka-topics.sh --zookeeper zookeeper:2181 --topic my-first-topic --describe
+
+#4 - create a producer and link it to the topic
+kafka-console-producer.sh --broker-list localhost:9092 --topic my-first-topic
+
+#this opens a prompt which allows data entry onto the topic - <ctl>+c - closes this
+ 
+#to run from a file 
+ kafka-console-producer.sh --broker-list localhost:9092 --topic my-first-topic < topic-input.txt
+
+#5 - create a consumer to read from the topic
+kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic my-first-topic --from-beginning
