@@ -7,6 +7,11 @@ docker exec -it <container> bash
  #running as a container in the background: 
  docker run -d -it <image_id>
  
+ #helpful images
+ #BusyBox combines tiny versions of many common UNIX utilities into a single small executable
+ docker pull busybox
+ #dev tools
+ docker pull dockerinpractice/docker-dev-tools-image
  -----------------------------------------------
  
  #use the 
@@ -20,6 +25,9 @@ docker-compose up -d
 
 #check up
 docker ps
+
+#check docker up
+docker info
 
 ---------------------------------------------------------
 #https://medium.com/@TimvanBaarsen/apache-kafka-cli-commands-cheat-sheet-a6f06eac01b
