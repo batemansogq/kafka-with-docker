@@ -25,12 +25,23 @@ docker-compose up -d
 
 #check up
 docker ps
+# check the last 5 created
+docker ps -n 5
 
 #check docker up
 docker info
 
 #remove all old images
 docker image prune -a
+
+#create new image
+docker commit <containerID>
+
+#tag image
+docker tag <new containerID> batemansogq/cp-kafka-twitter
+
+#push image
+docker push batemansogq/cp-kafka-twitter
 
 ------------------------------------------------------
 #nice interface
