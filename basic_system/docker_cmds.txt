@@ -4,6 +4,7 @@
 
 cd D:\Github\kafka-with-docker\basic_system
 
+#run a JAR in linux
 java -jar kafka_producer_twitter_jar/kafka-producer-twitter.jar
 
 #open up kafka
@@ -12,5 +13,11 @@ docker exec -it sn-kafka /bin/bash
 #inspect the topic
 kafka-console-consumer --bootstrap-server localhost:9092 --topic twitter_tweets --from-beginning
 
-#run a JAR in linux
-java -jar filex.jar
+#troubleshot
+docker run -p 9092:9092 batemansogq/cp-kafka-twitter -it -rm
+
+#Setup Sink Connector
+curl -d D://Github\kafka-with-docker\kafka-mongodb/connect-mongodb-sink.json -H "Content-Type: application/json" -X POST http://localhost:8083/connectors
+
+#mongodb client
+http://localhost:3000/
