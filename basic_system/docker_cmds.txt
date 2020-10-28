@@ -2,6 +2,8 @@
 /etc/<package>/            # Configuration files
 /usr/share/java/<package>/ # Jars
 
+cd D:\Github\kafka-with-docker\basic_system
+
 #open up kafka
 docker exec -it sn-kafka /bin/bash
 
