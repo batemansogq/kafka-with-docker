@@ -1,0 +1,89 @@
+version: "3.6"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.5.0
+    restart: unless-stopped
+    container_name: tw-zookeeper
+    ports:
+      - 2181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+  kafka:
+    #image: confluentinc/cp-kafka:5.5.0
+    image: batemansogq/cp-kafka-twitter
+    depends_on:
+      - zookeeper
+    ports:
+      - 9092:9092
+    container_name: tw-kafka
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    #command: bash -c "java -jar kafka_producer_twitter_jar/kafka-producer-twitter.jar"
+    volumes:
+      - kafka:/var/lib/kafka/data
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:5.1.0
+    hostname: kafka-connect
+    container_name: kafka-connect
+    ports:
+      - "8083:8083"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: "kafka:9092"
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: compose-connect-group
+      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_PLUGIN_PATH: '/usr/share/java,/etc/kafka-connect/jars'
+      CONNECT_CONFLUENT_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - jars:/etc/kafka-connect/jars
+    depends_on:
+      - zookeeper
+      - kafka
+  mongo-db:
+    image: mongo:4.0.5
+    hostname: mongo-db
+    container_name: mongo-db
+    expose:
+      - "27017"
+    ports:
+      - "27017:27017"
+    command: --bind_ip_all --smallfiles
+    depends_on:
+      - kafka
+    volumes:
+       - mongo-db:/data
+  mongoclient:
+    image: mongoclient/mongoclient:2.2.0
+    container_name: mongoclient
+    hostname: mongoclient
+    depends_on:
+      - mongo-db
+    ports:
+      - 3000:3000
+    environment:
+      MONGO_URL: "mongodb://mongo-db:27017"
+      PORT: 3000
+    expose:
+      - "3000"
+
+volumes:
+  mongo-db:
+  kafka:
+  jars:
