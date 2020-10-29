@@ -26,8 +26,8 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     #command: bash -c "java -jar kafka_producer_twitter_jar/kafka-producer-twitter.jar"
-    volumes:
-      - kafka:/var/lib/kafka/data
+    # volumes:
+    #   - kafka:/var/lib/kafka/data
   kafka-connect:
     image: confluentinc/cp-kafka-connect:5.1.0
     hostname: kafka-connect
@@ -35,7 +35,7 @@ services:
     ports:
       - "8083:8083"
     environment:
-      CONNECT_BOOTSTRAP_SERVERS: "kafka:9092"
+      CONNECT_BOOTSTRAP_SERVERS: kafka:9092
       CONNECT_REST_ADVERTISED_HOST_NAME: connect
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: compose-connect-group
@@ -49,41 +49,43 @@ services:
       CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
-      CONNECT_PLUGIN_PATH: '/usr/share/java,/etc/kafka-connect/jars'
+      CONNECT_PLUGIN_PATH: /usr/share/java
       CONNECT_CONFLUENT_TOPIC_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
+      CONNECT_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
       - jars:/etc/kafka-connect/jars
     depends_on:
       - zookeeper
       - kafka
-  mongo-db:
-    image: mongo:4.0.5
-    hostname: mongo-db
-    container_name: mongo-db
-    expose:
-      - "27017"
-    ports:
-      - "27017:27017"
-    command: --bind_ip_all --smallfiles
-    depends_on:
-      - kafka
-    volumes:
-       - mongo-db:/data
-  mongoclient:
-    image: mongoclient/mongoclient:2.2.0
-    container_name: mongoclient
-    hostname: mongoclient
-    depends_on:
-      - mongo-db
-    ports:
-      - 3000:3000
-    environment:
-      MONGO_URL: "mongodb://mongo-db:27017"
-      PORT: 3000
-    expose:
-      - "3000"
+  # mongo-db:
+  #   image: mongo:4.0.5
+  #   hostname: mongo-db
+  #   container_name: mongo-db
+  #   expose:
+  #     - "27017"
+  #   ports:
+  #     - "27017:27017"
+  #   command: --bind_ip_all --smallfiles
+  #   depends_on:
+  #     - kafka
+  #   volumes:
+  #      - mongo-db:/data
+  # mongoclient:
+  #   image: mongoclient/mongoclient:2.2.0
+  #   container_name: mongoclient
+  #   hostname: mongoclient
+  #   depends_on:
+  #     - mongo-db
+  #   ports:
+  #     - 3000:3000
+  #   environment:
+  #     MONGO_URL: "mongodb://mongo-db:27017"
+  #     PORT: 3000
+  #   expose:
+  #     - "3000"
 
 volumes:
-  mongo-db:
+  # mongo-db:
   kafka:
   jars:
