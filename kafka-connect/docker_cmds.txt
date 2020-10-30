@@ -37,7 +37,7 @@ docker exec connect curl -X POST -H "Content-Type: application/json" --data '{"n
 
 curl -X POST -H "Content-Type: application/json" --data '{"name": "twitter-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "topics":"twitter_tweets", "file": "/connect/data/tweets.json"}}' http://connect:8083/connectors
 
-curl -X POST -H "Content-Type: application/json" --data '{"name": "twitter6-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "topics":"twitter_tweets", "file": "tweets.txt"}}' http://connect:8083/connectors
+curl -X POST -H "Content-Type: application/json" --data '{"name": "twitter-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "topics":"twitter_tweets", "file": "tweets.txt"}}' http://connect:8083/connectors
 
 #check file size
 wc -c tweets.txt
