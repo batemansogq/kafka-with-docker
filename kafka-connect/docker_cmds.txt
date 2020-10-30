@@ -1,0 +1,69 @@
+#check topics
+docker exec connect kafka-topics --describe --zookeeper zookeeper:2181
+
+#Create a topic for storing data that we'll send to kafka
+docker exec connect kafka-topics --create --topic quickstart-data --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:2181
+
+#Create a directory for our input and output data files to live
+docker exec connect mkdir -p /tmp/quickstart/file
+
+#update file privileges
+ chmod 744 /tmp/quickstart/file
+
+#Create a file with dummy data for our FileSource Connector to read from
+The quickstart tutorial says to use: docker exec connect bash -c 'seq 1000 > /tmp/quickstart/file/input.txt'
+#move a file into the container
+docker cp squence.txt connect:/input.txt
+
+
+#run the twitter feed
+docker exec kafka java -jar kafka_producer_twitter_jar/kafka-producer-twitter.jar
+
+#list out topics
+kafka-console-consumer  --bootstrap-server kafka:9092 --topic twitter_tweets --from-beginning
+
+
+#Create a FileSource Connector to read a file from disk
+docker exec connect curl -s -X POST -H "Content-Type: application/json" --data '{"name": "quickstart-file-source", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSourceConnector", "tasks.max":"1", "topic":"quickstart-data", "file": "/input.txt"}}' http://connect:8083/connectors
+
+#Check status of source connector
+docker exec connect curl -s -X GET http://connect:8083/connectors/quickstart-file-source/status
+
+#Read 10 records from the quickstart-data topic (using built in console consumer)
+docker exec connect kafka-console-consumer --bootstrap-server kafka:9092 --topic quickstart-data --from-beginning --max-messages 10
+
+#Create a FileSink Connector
+docker exec connect curl -X POST -H "Content-Type: application/json" --data '{"name": "quickstart-file-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "topics":"quickstart-data", "file": "/tmp/quickstart/file/output.txt"}}' http://connect:8083/connectors
+
+curl -X POST -H "Content-Type: application/json" --data '{"name": "twitter-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "topics":"twitter_tweets", "file": "/connect/data/tweets.json"}}' http://connect:8083/connectors
+
+curl -X POST -H "Content-Type: application/json" --data '{"name": "twitter6-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "topics":"twitter_tweets", "file": "tweets.txt"}}' http://connect:8083/connectors
+
+#check file size
+wc -c tweets.txt
+
+#logs
+docker logs connect --tail 50
+
+#Check status of sink connector
+docker exec connect exit
+
+#Check that the connector worked by viewing the content of the output file
+docker exec connect cat /tmp/quickstart/file/output.txt
+
+
+#Create a topic for the twitter messages to live
+docker exec connect kafka-topics --create --topic twitter --partitions 1 --replication-factor 1 --if-not-exists --zookeeper zookeeper:2181
+
+#Create Twitter Sink Connector
+docker exec connect curl -X POST -H "Content-Type: application/json" --data '{"name":"twitter-sink","config":{"connector.class":"com.eneco.trading.kafka.connect.twitter.TwitterSinkConnector","tasks.max":1,"topics":"twitter","twitter.consumerkey":"YOUR_CONSUMER_KEY","twitter.consumersecret":"YOUR_CONSUMER_SECRET","twitter.token":"YOUR_TOKEN","twitter.secret":"YOUR_SECRET"}}' http://connect:8083/connectors
+
+#CLEAN UP
+#Delete containers created
+docker rm -f $(docker ps -a -q)
+
+#Remove unused volumes
+docker volume prune
+
+#Remove network created
+docker network rm confluent
