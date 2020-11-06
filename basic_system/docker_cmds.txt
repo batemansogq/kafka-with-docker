@@ -8,10 +8,19 @@ cd D:\Github\kafka-with-docker\basic_system
 java -jar kafka_producer_twitter_jar/kafka-producer-twitter.jar
 
 #open up kafka
-docker exec -it sn-kafka /bin/bash
+docker exec -it sn-kafka /bash
 
 #inspect the topic
 kafka-console-consumer --bootstrap-server localhost:9092 --topic twitter_tweets --from-beginning
+
+##find last records
+# find the lenght of each partition
+kafka-run-class kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic twitter_tweets
+
+#query that partition using offset i.e. if there are 319 records, offset; 319 = 1, 318=2
+kafka-console-consumer --bootstrap-server localhost:9092 --topic twitter_tweets --offset 319  --partition 0
+
+
 
 #troubleshot
 docker run -p 9092:9092 batemansogq/cp-kafka-twitter -it -rm
