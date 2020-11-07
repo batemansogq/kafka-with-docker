@@ -1,0 +1,8 @@
+#createthe topic
+docker exec kakfa kafka-topics --create --topic neo4j --bootstrap-server localhost:9092
+
+#create a producer for the topic
+kafka-console-producer--topic neo4j --bootstrap-server localhost:9092
+
+#read the topic
+kafka-console-consumer --topic neo4j --from-beginning --bootstrap-server localhost:9092
