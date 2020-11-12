@@ -15,6 +15,8 @@ The quickstart tutorial says to use: docker exec connect bash -c 'seq 1000 > /tm
 #move a file into the container
 docker cp squence.txt connect:/input.txt
 
+#directory
+cd D:\Github\kafka-with-docker\kafka-connect
 
 #run the twitter feed
 docker exec kafka java -jar kafka_producer_twitter_jar/kafka-producer-twitter.jar
@@ -31,6 +33,8 @@ docker exec connect curl -s -X GET http://connect:8083/connectors/quickstart-fil
 
 #Read 10 records from the quickstart-data topic (using built in console consumer)
 docker exec connect kafka-console-consumer --bootstrap-server kafka:9092 --topic quickstart-data --from-beginning --max-messages 10
+
+docker exec connect kafka-console-consumer --bootstrap-server kafka:9092 --topic twitter_tweets --from-beginning --max-messages 10
 
 #Create a FileSink Connector
 docker exec connect curl -X POST -H "Content-Type: application/json" --data '{"name": "quickstart-file-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "topics":"quickstart-data", "file": "/tmp/quickstart/file/output.txt"}}' http://connect:8083/connectors
@@ -50,6 +54,8 @@ docker exec connect exit
 
 #Check that the connector worked by viewing the content of the output file
 docker exec connect cat /tmp/quickstart/file/output.txt
+#create a json file
+echo some > ./connect/data/tweets.json
 
 
 #Create a topic for the twitter messages to live
@@ -57,6 +63,18 @@ docker exec connect kafka-topics --create --topic twitter --partitions 1 --repli
 
 #Create Twitter Sink Connector
 docker exec connect curl -X POST -H "Content-Type: application/json" --data '{"name":"twitter-sink","config":{"connector.class":"com.eneco.trading.kafka.connect.twitter.TwitterSinkConnector","tasks.max":1,"topics":"twitter","twitter.consumerkey":"YOUR_CONSUMER_KEY","twitter.consumersecret":"YOUR_CONSUMER_SECRET","twitter.token":"YOUR_TOKEN","twitter.secret":"YOUR_SECRET"}}' http://connect:8083/connectors
+
+#sink commands
+#whats available
+curl localhost:8083/connector-plugins
+#whats running
+curl localhost:8083/connectors/twitter-sink/tasks
+curl localhost:8083/connectors/twitter-sink/status
+curl localhost:8083/connectors/twitter-sink/config
+#restart
+curl -X POST localhost:8083/connectors/twitter-sink/restart
+#remove a connector
+curl -X DELETE localhost:8083/connectors/twitter-sink
 
 #CLEAN UP
 #Delete containers created
