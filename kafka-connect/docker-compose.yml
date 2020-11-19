@@ -68,7 +68,7 @@ services:
       CONNECT_ZOOKEEPER_CONNECT: zookeeper:2181
       CONNECT_PLUGIN_PATH: /usr/share/java
     volumes: 
-      - data:./connect/data
+      - data:/connect/data
 
 volumes:
   data:
