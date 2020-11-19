@@ -32,8 +32,6 @@ docker exec connect curl -s -X POST -H "Content-Type: application/json" --data '
 docker exec connect curl -s -X GET http://connect:8083/connectors/quickstart-file-source/status
 
 #Read 10 records from the quickstart-data topic (using built in console consumer)
-docker exec connect kafka-console-consumer --bootstrap-server kafka:9092 --topic quickstart-data --from-beginning --max-messages 10
-
 docker exec connect kafka-console-consumer --bootstrap-server kafka:9092 --topic twitter_tweets --from-beginning --max-messages 10
 
 #Create a FileSink Connector
