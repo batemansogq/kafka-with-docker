@@ -86,3 +86,22 @@ docker system prune
 
 #Remove network created
 docker network rm confluent
+
+=============================
+#volumes - https://www.ionos.com/community/server-cloud-infrastructure/docker/understanding-and-managing-docker-container-volumes/
+# syntax
+# -v [host directory]:[container directory]
+
+#create the folder
+mkdir /hostvolume
+
+#run docker mount to the volume
+docker run -it --name my-directory-test -v /hostvolume:/containervolume centos /bin/bash
+
+#list files, should see the files in the volume
+ls /containervolume
+
+#create a file, should see it from the file system
+echo "Hello from the container." >> /containervolume/container-hello.txt
+
+ls /hostvolume
