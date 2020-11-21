@@ -79,7 +79,10 @@ curl -X DELETE localhost:8083/connectors/twitter-sink
 docker rm -f $(docker ps -a -q)
 
 #Remove unused volumes
+docker volume lsdocker
 docker volume prune
+
+docker system prune
 
 #Remove network created
 docker network rm confluent
