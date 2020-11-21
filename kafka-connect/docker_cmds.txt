@@ -105,3 +105,6 @@ ls /containervolume
 echo "Hello from the container." >> /containervolume/container-hello.txt
 
 ls /hostvolume
+
+#remove container and volume
+docker rm -f -v my-directory-test
