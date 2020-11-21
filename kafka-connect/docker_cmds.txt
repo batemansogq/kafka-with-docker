@@ -96,7 +96,7 @@ docker network rm confluent
 mkdir /hostvolume
 
 #run docker mount to the volume
-docker run -it --rm --name my-directory-test -v "/D:/Github/kafka-with-docker/kafka-connect/hostvolume":/containervolume centos /bin/bash
+docker run -it --rm --name my-directory-test -v "d:/Github/kafka-with-docker/kafka-connect/hostvolume":/containervolume centos /bin/bash
 
 #list files, should see the files in the volume
 ls /containervolume

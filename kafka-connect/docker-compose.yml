@@ -32,7 +32,7 @@ services:
     hostname: schema_registry
     container_name: schema_registry
     depends_on:
-      - zookeeper
+      #- zookeeper
       - kafka
     ports:
       - "8081:8081"
@@ -68,7 +68,7 @@ services:
       CONNECT_ZOOKEEPER_CONNECT: zookeeper:2181
       CONNECT_PLUGIN_PATH: /usr/share/java
     volumes: 
-      - data:/connect/data
+      - d://Github/kafka-with-docker/kafka-connect/hostvolume:/connect/data
 
 volumes:
   data:
