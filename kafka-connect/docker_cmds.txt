@@ -17,19 +17,11 @@ docker cp squence.txt connect:/input.txt
 
 #directory
 cd D:\Github\kafka-with-docker\kafka-connect
+# windows envirs
+set COMPOSE_CONVERT_WINDOWS_PATHS=false
 
 #run the twitter feed
 docker exec kafka java -jar kafka_producer_twitter_jar/kafka-producer-twitter.jar
-
-#list out topics
-kafka-console-consumer  --bootstrap-server kafka:9092 --topic twitter_tweets --from-beginning
-
-
-#Create a FileSource Connector to read a file from disk
-docker exec connect curl -s -X POST -H "Content-Type: application/json" --data '{"name": "quickstart-file-source", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSourceConnector", "tasks.max":"1", "topic":"quickstart-data", "file": "/input.txt"}}' http://connect:8083/connectors
-
-#Check status of source connector
-docker exec connect curl -s -X GET http://connect:8083/connectors/quickstart-file-source/status
 
 #Read 10 records from the quickstart-data topic (using built in console consumer)
 docker exec connect kafka-console-consumer --bootstrap-server kafka:9092 --topic twitter_tweets --from-beginning --max-messages 10
@@ -37,9 +29,10 @@ docker exec connect kafka-console-consumer --bootstrap-server kafka:9092 --topic
 #Create a FileSink Connector
 docker exec connect curl -X POST -H "Content-Type: application/json" --data '{"name": "quickstart-file-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "topics":"quickstart-data", "file": "/tmp/quickstart/file/output.txt"}}' http://connect:8083/connectors
 
-curl -X POST -H "Content-Type: application/json" --data '{"name": "twitter-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "topics":"twitter_tweets", "file": "/connect/data/tweets.json"}}' http://connect:8083/connectors
 
-curl -X POST -H "Content-Type: application/json" --data '{"name": "twitter-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "topics":"twitter_tweets", "file": "tweets.txt"}}' http://connect:8083/connectors
+curl -X POST -H "Content-Type: application/json" --data '{"name": "twitter-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "topics":"twitter_tweets", "file": "D://Github/kafka-with-docker/kafka-connect/hostvolume/tweets.json"}}' http://connect:8083/connectors
+
+curl -X POST -H "Content-Type: application/json" --data '{"name": "twitter-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "topics":"twitter_tweets", "file": "/data/tweets.json"}}' http://connect:8083/connectors
 
 #check file size
 wc -c tweets.txt
@@ -73,6 +66,15 @@ curl localhost:8083/connectors/twitter-sink/config
 curl -X POST localhost:8083/connectors/twitter-sink/restart
 #remove a connector
 curl -X DELETE localhost:8083/connectors/twitter-sink
+
+#==================================
+# confluent doco
+#=================================
+#docker help
+https://docs.confluent.io/platform/current/installation/docker/config-reference.html#schema-registry-configuration
+# full yaml
+https://github.com/confluentinc/cp-demo/blob/6.0.0-post/docker-compose.yml
+
 
 #CLEAN UP
 #Delete containers created
