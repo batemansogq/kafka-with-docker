@@ -15,6 +15,12 @@ The quickstart tutorial says to use: docker exec connect bash -c 'seq 1000 > /tm
 #move a file into the container
 docker cp squence.txt connect:/input.txt
 
+#save an image
+docker commit 3957fbdb batemansogq/cp-kafka-twitter:latest
+
+docker push batemansogq/cp-kafka-twitter:latest
+
+
 #directory
 cd D:\Github\kafka-with-docker\kafka-connect
 
