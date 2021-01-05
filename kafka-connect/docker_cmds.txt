@@ -38,6 +38,9 @@ docker exec connect curl -X POST -H "Content-Type: application/json" --data '{"n
 docker exec connect curl -X POST -H "Content-Type: application/json" --data '{"name":"twitter-sink","config":{"connector.class":"com.eneco.trading.kafka.connect.twitter.TwitterSinkConnector","tasks.max":1,"topics":"twitter","twitter.consumerkey":"YOUR_CONSUMER_KEY","twitter.consumersecret":"YOUR_CONSUMER_SECRET","twitter.token":"YOUR_TOKEN","twitter.secret":"YOUR_SECRET"}}' http://connect:8083/connectors
 
 
+#running as a container in the background: 
+ docker run -d -it connect
+
 curl -X POST -H "Content-Type: application/json" --data '{"name": "twitter-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "topics":"twitter_tweets", "file": "/data/tweets.json"}}' http://connect:8083/connectors
 
 #schemas.enables =false
@@ -91,7 +94,7 @@ https://github.com/confluentinc/cp-demo/blob/6.0.0-post/docker-compose.yml
 
 #CLEAN UP
 #Delete containers created
-docker rm -f $(docker ps -a -q)
+docker rm -f cr$(docker ps -a -q)
 
 #Remove unused volumes
 docker volume lsdocker
@@ -109,7 +112,7 @@ docker network rm confluent
 
 #create the folder
 mkdir /hostvolume
-
+Switch
 #run docker mount to the volume
 docker run -it --rm --name my-directory-test -v "d:/Github/kafka-with-docker/kafka-connect/hostvolume":/containervolume centos /bin/bash
 
