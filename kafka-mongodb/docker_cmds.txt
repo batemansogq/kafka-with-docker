@@ -20,7 +20,7 @@ docker exec connect kafka-console-consumer --bootstrap-server kafka:9092 --topic
 curl -X POST -H "Content-Type: application/json" --data '{"name": "twitter-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "schemas.enable":false, "key.converter.schemas.enable":false, "value.converter.schemas.enable":false, "topics":"twitter_tweets", "file": "/data/tweets.json"}}' http://connect:8083/connectors
 
 #create the mongo sink
-curl -X POST -H "Content-Type: application/json" --data {"name": "mongo-sink", "config": {"connector.class":"com.mongodb.kafka.connect.MongoSinkConnector", "tasks.max":"1", "key.converter.schemas.enable":"false", "value.converter.schemas.enable":"false", "topics":"twitter_tweets",  "connection.uri":"mongodb://mongo1:27017,mongo2:27017,mongo3:27017", "database":"test", "collection":"twitter_tweets", "key.converter": "org.apache.kafka.connect.storage.StringConverter", "value.converter": "org.apache.kafka.connect.json.JsonConverter"}}' http://localhost:8083/connectors
+curl -X POST -H "Content-Type: application/json" --data {"name": "mongo-sink", "config": {"connector.class":"com.mongodb.kafka.connect.MongoSinkConnector", "tasks.max":"1", "key.converter.schemas.enable":"false", "value.converter.schemas.enable":"false", "topics":"twitter_tweets",  "connection.uri":"mongodb://mongo1:27017", "database":"twitter", "collection":"twitter_tweets", "key.converter": "org.apache.kafka.connect.storage.StringConverter", "value.converter": "org.apache.kafka.connect.json.JsonConverter"}}' http://localhost:8083/connectors
 
 
 #sink commands
