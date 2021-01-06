@@ -1,6 +1,5 @@
 version: "3.6"
 
-version: '2'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -28,13 +27,25 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+  schema_registry:
+    image: confluentinc/cp-schema-registry
+    hostname: schema_registry
+    container_name: schema_registry
+    depends_on:
+      #- zookeeper
+      - kafka
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema_registry
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
+
   connect:
     image: confluentinc/cp-kafka-connect:latest
     hostname: connect
     container_name: connect
     depends_on:
-      - zookeeper
-      - kafka
+      - schema_registry
     ports:
       - "8083:8083"
     environment:
@@ -49,9 +60,29 @@ services:
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
       CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
+     # CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      #https://www.confluent.io/blog/kafka-connect-deep-dive-converters-serialization-explained/
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
       CONNECT_ZOOKEEPER_CONNECT: zookeeper:2181
       CONNECT_PLUGIN_PATH: /usr/share/java
+
+  # MongoDB Replica Set
+  mongo1:
+    image: "mongo:4.0-xenial"
+    container_name: mongo1
+    command: --replSet rs0 --smallfiles --oplogSize 128
+    volumes:
+      - rs1:/data/db
+    networks:
+      - localnet
+    ports:
+      - "27017:27017"
+    restart: always
+
+volumes:
+  rs1:
