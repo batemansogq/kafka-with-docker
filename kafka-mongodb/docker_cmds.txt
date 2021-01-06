@@ -1,0 +1,52 @@
+#check topics
+docker exec connect kafka-topics --describe --zookeeper zookeeper:2181
+
+
+
+#directory
+cd D:\Github\kafka-with-docker\kafka-mongodb
+
+
+#run the twitter feed
+docker exec kafka java -jar kafka_producer_twitter_jar/kafka-producer-twitter.jar
+
+#Read 10 records from the twitter topic (using built in console consumer)
+docker exec connect kafka-console-consumer --bootstrap-server kafka:9092 --topic twitter_tweets --from-beginning --max-messages 10
+
+#running as a container in the background: 
+ docker run -d -it connect
+
+#schemas.enables =false
+curl -X POST -H "Content-Type: application/json" --data '{"name": "twitter-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "schemas.enable":false, "key.converter.schemas.enable":false, "value.converter.schemas.enable":false, "topics":"twitter_tweets", "file": "/data/tweets.json"}}' http://connect:8083/connectors
+
+#sink commands
+#whats available
+curl localhost:8083/connector-plugins
+#whats running
+curl localhost:8083/connectors/twitter-sink/tasks
+curl localhost:8083/connectors/twitter-sink/status
+curl localhost:8083/connectors/twitter-sink/config
+
+curl -X PUT localhost:8083/connectors/twitter-sink/pause
+#restart
+curl -X POST localhost:8083/connectors/twitter-sink/restart
+#remove a connector
+curl -X DELETE localhost:8083/connectors/twitter-sink
+
+
+#logs
+docker logs connect --tail 50
+
+
+#CLEAN UP
+#Delete containers created
+docker rm -f cr$(docker ps -a -q)
+
+#Remove unused volumes
+docker volume lsdocker
+docker volume prune
+
+docker system prune
+
+#Remove network created
+docker network rm confluent
