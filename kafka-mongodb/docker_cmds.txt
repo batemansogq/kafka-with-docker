@@ -1,6 +1,21 @@
 #check topics
 docker exec connect kafka-topics --describe --zookeeper zookeeper:2181
 
+##unix cmds
+#up to root
+cd /.
+#search a folder structure
+du -a .
+du -a /tmp/dir1/
+#display PATH
+echo $PATH
+#add a new PATH
+export PATH=$PATH:/games/awesome
+
+#confluent connect - plugging path
+plugin.path=/usr/share/java
+# add a connector - https://www.confluent.io/hub/mongodb/kafka-connect-mongodb
+confluent-hub install mongodb/kafka-connect-mongodb:1.3.0
 
 
 #directory
@@ -22,13 +37,13 @@ curl -X POST -H "Content-Type: application/json" --data '{"name": "twitter-sink"
 #get on to the connect container and start a bash shell
 docker exec -it connect bash
 
+#start the mongo container
 docker run --name mongodb -v mongodata:/data/db --rm -d -p 27017:27017 mongo
 
 #create the mongo sink
-curl -X POST -H "Content-Type: application/json" --data {"name": "mongo-sink", "config": {"connector.class":"com.mongodb.kafka.connect.MongoSinkConnector", "tasks.max":"1", "value.converter.schemas.enable": "false", "topics":"twitter_tweets",  "connection.uri":"mongodb://mongo1:27017", "database":"twitter", "collection":"twitter_tweets", "key.converter": "org.apache.kafka.connect.storage.StringConverter", "value.converter": "org.apache.kafka.connect.json.JsonConverter"}}' http://localhost:8083/connectors
+curl -X POST -H "Content-Type: application/json" --data '{"name": "mongo-sink", "config": {"connector.class":"com.mongodb.kafka.connect.MongoSinkConnector", "tasks.max":"1", "value.converter.schemas.enable": "false", "topics":"twitter_tweets",  "connection.uri":"mongodb://mongo1:27017", "database":"twitter", "collection":"twitter_tweets", "key.converter": "org.apache.kafka.connect.storage.StringConverter", "value.converter": "org.apache.kafka.connect.json.JsonConverter"}}' http://localhost:8083/connectors
 
-curl -X POST -H "Content-Type: application/json" --data {"name": "mongo-sink", "config": {"connector.class":"com.mongodb.kafka.connect.MongoSinkConnector", "tasks.max":"1", "value.converter.schemas.enable": "false", "topics":"twitter_tweets",  "connection.uri":"mongodb://mongo1:27017", "database":"twitter", "collection":"twitter_tweets"}}' http://localhost:8083/connectors
-
+curl -X POST -H "Content-Type: application/json" --data '{"name": "mongo-sink", "config": {"connector.class":"org.apache.kafka.connect.file.FileStreamSinkConnector", "tasks.max":"1", "schemas.enable":false, "key.converter.schemas.enable":false, "value.converter.schemas.enable":false, "topics":"twitter_tweets", "file": "/data/tweets.json"}}' http://connect:8083/connectors
 
 #sink commands
 #whats available
