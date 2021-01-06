@@ -1,3 +1,10 @@
+#change
+cd d://Github/kafka-with-docker/Neo4j
+
+#Kafka Consumer that subscribes the topic neo4j 
+docker exec kafka kafka-console-consumer --bootstrap-server kafka:19092 --topic neo4j --from-beginning
+
+
 #createthe topic
 docker exec kakfa kafka-topics --create --topic neo4j --bootstrap-server localhost:9092
 
@@ -6,3 +13,9 @@ kafka-console-producer--topic neo4j --bootstrap-server localhost:9092
 
 #read the topic
 kafka-console-consumer --topic neo4j --from-beginning --bootstrap-server localhost:9092
+
+
+
+#standup
+
+docker run --publish=7474:7474 --publish=7687:7687 --volume=$HOME/neo4j/data:/data --env=NEO4J_AUTH=none neo4j

@@ -19,6 +19,7 @@ services:
       NEO4J_kafka_bootstrap_servers: kafka:9092
       NEO4J_streams_source_topic_nodes_neo4j: Person{*}
       NEO4J_streams_source_topic_relationships_neo4j: KNOWS{*}
+      NEO4J_AUTH: none
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
